@@ -1,4 +1,6 @@
 import sphinx.parsers
+import docutils
+print(dir(docutils))
 import docutils.parsers.rst as rst
 
 class CStrip(sphinx.parsers.Parser):
