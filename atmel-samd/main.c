@@ -480,12 +480,12 @@ void samd21_init(void) {
     tick_init();
 
     // Uncomment to init PIN_PA17 for debugging.
-    // struct port_config pin_conf;
-    // port_get_config_defaults(&pin_conf);
-    //
-    // pin_conf.direction  = PORT_PIN_DIR_OUTPUT;
-    // port_pin_set_config(MICROPY_HW_LED1, &pin_conf);
-    // port_pin_set_output_level(MICROPY_HW_LED1, false);
+    struct port_config pin_conf;
+    port_get_config_defaults(&pin_conf);
+
+    pin_conf.direction  = PORT_PIN_DIR_OUTPUT;
+    port_pin_set_config(PIN_PA17, &pin_conf);
+    port_pin_set_output_level(PIN_PA17, false);
 
     rgb_led_status_init();
 

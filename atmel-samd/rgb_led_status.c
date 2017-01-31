@@ -3,10 +3,10 @@
 
 #include "mphalport.h"
 
-#include "shared-bindings/bitbangio/SPI.h"
+#include "shared-bindings/nativeio/SPI.h"
 #include "shared-bindings/nativeio/DigitalInOut.h"
 #include "shared-bindings/neopixel_write/__init__.h"
-#include "shared-module/bitbangio/types.h"
+#include "common-hal/nativeio/types.h"
 #include "rgb_led_status.h"
 #include "samd21_pins.h"
 
@@ -16,8 +16,8 @@ static nativeio_digitalinout_obj_t status_neopixel;
 #endif
 
 #if defined(MICROPY_HW_APA102_MOSI) && defined(MICROPY_HW_APA102_SCK)
-static uint8_t status_apa102_color[12] = {0, 0, 0, 0, 0xff, 0, 0, 0};
-static bitbangio_spi_obj_t status_apa102;
+static uint8_t status_apa102_color[12] = {0, 0, 0, 0, 0xff, 0, 0, 0, 0, 0, 0, 0};
+static nativeio_spi_obj_t status_apa102;
 #endif
 
 #if defined(MICROPY_HW_NEOPIXEL) || (defined(MICROPY_HW_APA102_MOSI) && defined(MICROPY_HW_APA102_SCK))
@@ -30,12 +30,14 @@ void rgb_led_status_init() {
         common_hal_nativeio_digitalinout_switch_to_output(&status_neopixel, false, DRIVE_MODE_PUSH_PULL);
     #endif
     #if defined(MICROPY_HW_APA102_MOSI) && defined(MICROPY_HW_APA102_SCK)
-        shared_module_bitbangio_spi_construct(&status_apa102,
-                                              MICROPY_HW_APA102_SCK,
-                                              MICROPY_HW_APA102_MOSI,
-                                              NULL);
-        shared_module_bitbangio_spi_try_lock(&status_apa102);
-        shared_module_bitbangio_spi_configure(&status_apa102, 100000, 0, 1, 8);
+
+    port_pin_set_output_level(PIN_PA17, true);
+        common_hal_nativeio_spi_construct(&status_apa102,
+                                          MICROPY_HW_APA102_SCK,
+                                          MICROPY_HW_APA102_MOSI,
+                                          NULL);
+        //common_hal_nativeio_spi_try_lock(&status_apa102);
+        //common_hal_nativeio_spi_configure(&status_apa102, 100000, 0, 1, 8);
     #endif
 }
 
@@ -57,7 +59,7 @@ void new_status_color(uint32_t rgb) {
         status_apa102_color[5] = rgb & 0xff;
         status_apa102_color[6] = (rgb >> 8) & 0xff;
         status_apa102_color[7] = (rgb >> 16) & 0xff;
-        shared_module_bitbangio_spi_write(&status_apa102, status_apa102_color, 8);
+        //common_hal_nativeio_spi_write(&status_apa102, status_apa102_color, 8);
     #endif
 }
 
@@ -67,8 +69,8 @@ void temp_status_color(uint32_t rgb) {
         common_hal_neopixel_write(&status_neopixel, colors, 3, true);
     #endif
     #if defined(MICROPY_HW_APA102_MOSI) && defined(MICROPY_HW_APA102_SCK)
-        uint8_t colors[12] = {0, 0, 0, 0, 0xff, rgb & 0xff, (rgb >> 8) & 0xff, (rgb >> 16) & 0xff, 0x0, 0x0, 0x0, 0x0};
-        shared_module_bitbangio_spi_write(&status_apa102, colors, 8);
+        //uint8_t colors[12] = {0, 0, 0, 0, 0xff, rgb & 0xff, (rgb >> 8) & 0xff, (rgb >> 16) & 0xff, 0x0, 0x0, 0x0, 0x0};
+        //common_hal_nativeio_spi_write(&status_apa102, colors, 8);
     #endif
 }
 
@@ -77,7 +79,7 @@ void clear_temp_status() {
         common_hal_neopixel_write(&status_neopixel, status_neopixel_color, 3, true);
     #endif
     #if defined(MICROPY_HW_APA102_MOSI) && defined(MICROPY_HW_APA102_SCK)
-        shared_module_bitbangio_spi_write(&status_apa102, status_apa102_color, 12);
+        //common_hal_nativeio_spi_write(&status_apa102, status_apa102_color, 12);
     #endif
 }
 
