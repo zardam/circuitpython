@@ -11,7 +11,7 @@ Digital Signals
 ---------------
 
 Before diving in to how to digital I/O works you'll want to understand what is a
-digial signal.  In the simplest sense a digital signal is a simple on or off
+digital signal.  In the simplest sense a digital signal is a simple on or off
 signal--i.e. there are only two possible states for the signal to be in.  Think
 of this almost like a binary digit that's either 0 or 1.  With a digital signal
 it can only ever be 0/off or 1/on, there is no in-between!
@@ -28,7 +28,8 @@ vice-versa.
 Examples of Digital Signals
 ---------------------------
 
-What can you do with a digital signal?  It turns out quite a few interesting components are controlled with simple on/off digital I/O!
+What can you do with a digital signal?  It turns out quite a few interesting
+components are controlled with simple on/off digital I/O!
 
 Digital inputs:
 
@@ -60,14 +61,14 @@ guide.
 Board Pins
 ----------
 
-To use digital I/O you need to learn how to access the pins on your board.
-These are the physical points where you connect wires to access the digital
-signals.  On some boards, like Arduino Zero and Metro M0, the digital I/O pins
-are exposed with female headers that work well with breadboard-friendly hookup
-wires.  On other boards like Circuit Playground Express and Gemma M0 the digital
-I/O pins are large copper pads with holes that are easy to connect to alligator
-clips or conductive thread.  Check your board's documentation to see where all
-of the digital I/O pins are located.
+To use digital I/O you need to learn how to access the pins on your board. These
+are the physical points where you connect wires to access the digital signals.
+On some boards, like Metro M0 Express, the digital I/O pins are exposed with
+female headers that work well with breadboard-friendly hookup wires.  On other
+boards like Circuit Playground Express and Gemma M0 the digital I/O pins are
+large copper pads with holes that are easy to connect to alligator clips or
+conductive thread.  Check your board's documentation to see where all of the
+digital I/O pins are located.
 
 In CircuitPython you use the board module to reference digital I/O pins.  The
 :py:mod:`board` module contains an object for each pin on the board and they're
@@ -134,6 +135,14 @@ digital output:
 
   >>> led.switch_to_output()
 
+Or you can set the :py:attr:`digitalio.DigitalInOut.direction` property to be an
+output:
+
+  >>> led.direction = digitalio.Direction.OUTPUT
+
+Either calling switch_to_output or setting the direction property will work the
+same way to make the pin an output.
+
 Once a digital output is created and initialized you simply change the value of
 its :py:attr:`digitalio.DigitalInOut.value` property to turn the output on or
 off.  For example to turn the LED on set value to true:
@@ -158,7 +167,11 @@ small delay:
   ...    time.sleep(0.5)
   >>>
 
-Remember in the REPL you need to press delete to de-indent the while loop and then press enter for it to see you're done typing code in the loop!  Alternatively press enter three times an CircuitPython will automatically close the loop and run it.  You can press Ctrl-C to stop the loop from running with a keyboard interrupt exception.
+Remember in the REPL you need to press delete to de-indent the while loop and
+then press enter for it to see you're done typing code in the loop!
+Alternatively press enter three times an CircuitPython will automatically close
+the loop and run it.  You can press Ctrl-C to stop the loop from running with a
+keyboard interrupt exception.
 
 Digital Inputs
 --------------
@@ -167,7 +180,7 @@ Just like digital outputs, digital inputs are easy to control with a few lines
 of CircuitPython code.  A great example of using digital inputs is reading the
 state of a button or switch.  To do this you'll need the following parts:
 
-- A `slide switch <https://www.adafruit.com/product/805>`_ or toggle switch.  These are switches that have three legs and physically connect one of the legs to another when the switch is flipped.  You'll see two different ways to wire this switch to your board--one that uses all three legs and another that uses just two legs.
+- A `slide switch <https://www.adafruit.com/product/805>`_ or toggle switch. These are switches that have three legs and physically connect one of the legs to another when the switch is flipped.  You'll see two different ways to wire this switch to your board--one that uses all three legs and another that uses just two legs.
 - A breadboard and wires to connect the components and board together.
 
 Wire up the switch to your board as follows:
@@ -175,7 +188,7 @@ Wire up the switch to your board as follows:
 .. image:: images/01_digital_io_figure_2.png
 
 - The middle leg or output of the switch is connected to one of the digital inputs of the board.
-- Another leg of the switch is connected to the board's ground or GND pin.  When the switch is flipped to this position it will read a low digital logic signal.
+- Another leg of the switch is connected to the board's ground or GND pin. When the switch is flipped to this position it will read a low digital logic signal.
 - The opposite leg of the switch is connected to the board's 3.3V output.  You want to connect this switch to a voltage output that matches your board's voltage for a high digital logic signal, typically 3.3V but sometimes 5V.  When the switch is flipped to this position it will read a high digital logic signal.
 
 Now connect to the board's REPL and create a digital input object just like you
@@ -191,6 +204,12 @@ were doing other things with the pin you can use the
 :py:func:`digitalio.DigitalInOut.switch_to_input` function:
 
   >>> switch.switch_to_input()
+
+Or just like with digital outputs you can also change the pin direction using
+the :py:attr:`digitalio.DigitalInOut.direction` property and setting it to an
+input:
+
+  >>> switch.direction = digitalio.Direction.INPUT
 
 After a digital input object is created you simply read the
 :py:attr:`digitalio.DigitalInOut.value` property to check if the input is at a
@@ -210,10 +229,11 @@ Then flip the switch to its opposite position and read it again:
 Notice the value changed from false to true!  This shows that the board first
 saw the digital input connected to ground or low digital logic level and then
 saw the input connected to 3.3V or high digital logic level.  By flipping the
-switch you physicaly changed how the legs of the switch were connected to switch
-between high and low levels!
+switch you physically changed how the legs of the switch were connected to
+switch between high and low levels!
 
-Remember you can use boolean values in conditional statements, like to print out a message if the switch is turned on:
+Remember you can use boolean values in conditional statements, like to print out
+a message if the switch is turned on:
 
   >>> if switch.value:
   ...     print("Switch is on!")
@@ -246,18 +266,23 @@ This prevents the input from floating and will instead read a high digital logic
 level.  Then when the switch is flipped and connected to ground / low logic it
 will 'overpower' the small pull-up resistor and read a low digital logic level.
 
-To enable a digital input with a pull-up (or pull-down) resistor you do so with
-a parameter to the :py:func:`digitalio.DigitalInOut.switch_to_input` function:
+To enable a digital input with a pull-up (or pull-down) resistor you can do so
+with a parameter to the :py:func:`digitalio.DigitalInOut.switch_to_input`
+function:
 
   >>> switch.switch_to_input(pull=digitalio.Pull.UP)
 
-Now the digital input is configured with a pull-up resistor!  Note that you can
-instead specify a pull-down resistor (connected to ground / low digital logic
-level) by setting the pull parameter to the :py:attr:`digitalio.Pull.DOWN`
-value.
+Or you set the :py:attr:`digitalio.DigitalInOut.pull` property:
 
-Once the input is configured with a pull-up resistor use the
-:py:attr:`digitalio.DigitalInOut.value` attribute to read its value:
+  >>> switch.pull = digitalio.Pull.UP
+
+Just like with setting direction you can use either the pull parameter to the
+switch_to_input function or the pull property to set an input's pull-up or pull
+down resistor.
+
+Now the digital input is configured with a pull-up resistor!  Try reading the
+value of the input with the  use the :py:attr:`digitalio.DigitalInOut.value`
+attribute again:
 
   >>> switch.value
   False
@@ -271,3 +296,24 @@ Notice the switch value changes depending on how the switch is flipped.  When
 the switch connects to ground you'll read a false or low digital logic level,
 and when the switch connects to nothing (i.e. is floating) you'll read a true or
 high logic level because of the pull-up resistor connected internally to 3.3V.
+
+You don't have to be limited to just pull-up resistors too.  On some boards you
+can specify pull-down resistors that pull the input to a ground or low logic
+level, and you can even turn off the pull-up or pull-down.  Just specify a
+different value for the pull parameter or attribute:
+
+:py:data:`digitalio.Pull.UP`
+
+    Set the input to have an internal pull-up resistor that reads a high digital
+    logic level when nothing else is connected.
+
+:py:data:`digitalio.Pull.DOWN`
+
+    Set the input to have an internal pull-down resistor that reads a low
+    digital logic level when nothing else is connected.
+
+:py:data:`digitalio.Pull.NONE`
+
+    Remove any pull-up or pull-down resistor.  The input will read whatever
+    logic level is connected to it and 'float' to random high or low values if
+    nothing is connected!

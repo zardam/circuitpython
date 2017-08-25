@@ -48,3 +48,8 @@ _build
 # Generated rst files
 ######################
 genrst/
+
+# Mac OSX junk
+######################
+.DS_Store
+
