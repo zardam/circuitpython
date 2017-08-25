@@ -8,3 +8,4 @@ This series of tutorials will progress through the basics of using CircuitPython
    :numbered:
 
    01_digital_io.rst
+   02_analog_io.rst

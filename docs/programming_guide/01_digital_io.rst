@@ -277,8 +277,8 @@ Or you set the :py:attr:`digitalio.DigitalInOut.pull` property:
   >>> switch.pull = digitalio.Pull.UP
 
 Just like with setting direction you can use either the pull parameter to the
-switch_to_input function or the pull property to set an input's pull-up or pull
-down resistor.
+switch_to_input function or the pull property to set an input's pull-up or
+pull-down resistor.
 
 Now the digital input is configured with a pull-up resistor!  Try reading the
 value of the input with the  use the :py:attr:`digitalio.DigitalInOut.value`
