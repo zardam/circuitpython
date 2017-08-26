@@ -333,18 +333,18 @@ and setup as with the DAC:
 
 Connect the components to your board as follows:
 
-.. image:: images/02_analog_io_figure_2.png
+.. image:: images/02_analog_io_figure_3.png
 
 - The short leg (cathode) of the LED connects to one end of the resistor.
 - The other end of the resistor connects to the ground or GND pin of the board.
-- The long leg (anode) of the LED connects to a PWM output of your board.  You might need to check your board's documentation to find these pins, but typically any digital output capable pin will work.
+- The long leg (anode) of the LED connects to a PWM output of your board.  You might need to check your board's documentation to find these pins, but typically any digital output capable pin will work.  Note that on Circuit Playground Express and Metro M0 Express you *can't* use pin A0 and need to switch to pin A1!
 
 Now at the REPL import the :py:mod:`pulseio` and :py:mod:`board` module to
 create an instance of the :py:class:`pulseio.PWMOut` class:
 
   >>> import board
   >>> import pulseio
-  >>> led = pulseio.PWMOut(board.A0)
+  >>> led = pulseio.PWMOut(board.A1)
 
 Just like with using analog inputs and outputs you need to specify the board pin
 as a parameter to the :py:class:`pulseio.PWMOut` class initializer.  However
