@@ -129,19 +129,10 @@ but you can use any digital output from your board):
 
 The :py:class:`digitalio.DigitalInOut` class is your gateway for controlling
 both digital inputs and outputs.  By default when you create an instance of one
-it starts as a digital input, however you can call the
-:py:func:`digitalio.DigitalInOut.switch_to_output` function to turn it into a
-digital output:
-
-  >>> led.switch_to_output()
-
-Or you can set the :py:attr:`digitalio.DigitalInOut.direction` property to be an
-output:
+it starts as a digital input, however you can set the
+:py:attr:`digitalio.DigitalInOut.direction` property to make it an output:
 
   >>> led.direction = digitalio.Direction.OUTPUT
-
-Either calling switch_to_output or setting the direction property will work the
-same way to make the pin an output.
 
 Once a digital output is created and initialized you simply change the value of
 its :py:attr:`digitalio.DigitalInOut.value` property to turn the output on or
@@ -200,14 +191,8 @@ saw previously with digital outputs.  For example using pin A1 of a board:
 
 By default :py:class:`digitalio.DigitalInOut` objects are created as digital
 inputs so you don't need to do anything else to read the switch.  However if you
-were doing other things with the pin you can use the
-:py:func:`digitalio.DigitalInOut.switch_to_input` function:
-
-  >>> switch.switch_to_input()
-
-Or just like with digital outputs you can also change the pin direction using
-the :py:attr:`digitalio.DigitalInOut.direction` property and setting it to an
-input:
+were doing other things with the pin you can use
+:py:attr:`digitalio.DigitalInOut.direction` property and set it to an input:
 
   >>> switch.direction = digitalio.Direction.INPUT
 
@@ -267,18 +252,9 @@ level.  Then when the switch is flipped and connected to ground / low logic it
 will 'overpower' the small pull-up resistor and read a low digital logic level.
 
 To enable a digital input with a pull-up (or pull-down) resistor you can do so
-with a parameter to the :py:func:`digitalio.DigitalInOut.switch_to_input`
-function:
-
-  >>> switch.switch_to_input(pull=digitalio.Pull.UP)
-
-Or you set the :py:attr:`digitalio.DigitalInOut.pull` property:
+with the :py:attr:`digitalio.DigitalInOut.pull` property:
 
   >>> switch.pull = digitalio.Pull.UP
-
-Just like with setting direction you can use either the pull parameter to the
-switch_to_input function or the pull property to set an input's pull-up or
-pull-down resistor.
 
 Now the digital input is configured with a pull-up resistor!  Try reading the
 value of the input with the  use the :py:attr:`digitalio.DigitalInOut.value`
@@ -317,3 +293,25 @@ different value for the pull parameter or attribute:
     Remove any pull-up or pull-down resistor.  The input will read whatever
     logic level is connected to it and 'float' to random high or low values if
     nothing is connected!
+
+Alternative Usage
+^^^^^^^^^^^^^^^^^
+
+Above you saw how the :py:attr:`digitalio.DigitalInOut.direction` and
+:py:attr:`digitalio.DigitalInOut.pull` properties let you set the input/output
+and pull-up or pull-down resistor state of a pin.  As an alternative you can use
+the :py:func:`digitalio.DigitalInOut.switch_to_output` and
+:py:func:`digitalio.DigitalInOut.switch_to_input` functions to also set the
+input/output and pull-up or pull-down resistor state.  These functions are handy
+alternatives that can set both the direction and pull-up/pull-down state in one
+call (see the pull parameter to the
+:py:func:`digitalio.DigitalInOut.switch_to_input` function).
+
+Remember you can explicitly import Python objects to make your code more compact
+too, for example:
+
+  >>> import board
+  >>> from digitalio import DigitalInOut, Direction, Pull
+  >>> led = DigitalInOut(board.A1)
+  >>> led.direction = Direction.OUTPUT
+  >>> led.pull = Pull.UP
