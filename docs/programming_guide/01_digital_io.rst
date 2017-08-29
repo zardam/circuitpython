@@ -315,3 +315,6 @@ too, for example:
   >>> led = DigitalInOut(board.A1)
   >>> led.direction = Direction.OUTPUT
   >>> led.pull = Pull.UP
+
+.. Author: Tony DiCola
+   Copyright: 2017

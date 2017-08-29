@@ -67,8 +67,8 @@ analog signals and voltages with a microprocessor.
 Typically development boards have one or more built-in analog to digital
 converters.  Check your board's documentation for details on the number of ADCs
 and which pins are used as inputs for them (some boards like the Metro M0
-Express and Circuit Playground Express note their analog inputs with names like
-A0, A1, etc.).
+Express, Circuit Playground Express, Trinket M0, and Gemma M0 note their analog
+inputs with names like A0, A1, etc.).
 
 Along with the number of analog to digital converters your board's documentation
 also might mention the resolution or 'bits' used by the ADC.  The resolution of
@@ -206,6 +206,14 @@ voltage using the reference voltage:
 Twist the potentiometer knob and run the same line again to see how the voltage
 value changes!
 
+You can also wrap the above equation into a Python function that's easy to call
+and convert ADC values into voltages:
+
+  >>> def adc_to_voltage(val):
+  ...    return val / 65535 * 3.3
+  >>> adc_to_voltage(adc.value)
+  3.2998
+
 Digital to Analog Converter (Outputs)
 --------------------------------------
 
@@ -233,7 +241,7 @@ Connect the components to your board as follows:
 
 - The short leg (cathode) of the LED connects to one end of the resistor.
 - The other end of the resistor connects to the ground or GND pin of the board.
-- The long leg (anode) of the LED connects to a the digital to analog converter output of your board.  You might need to check your board's documentation to find this pin.  On the Metro M0 Express and Circuit Playground Express looks for the A0 pin with a squiggly line next to it (the squiggle indicates this pin is a DAC output).
+- The long leg (anode) of the LED connects to a the digital to analog converter output of your board.  You might need to check your board's documentation to find this pin.  On the Metro M0 Express and Circuit Playground Express look for the A0 pin with a squiggly line next to it (the squiggle indicates this pin is a DAC output).
 
 Now at the REPL import the :py:mod:`analogio` and :py:mod:`board` module to
 create an instance of the :py:class:`analogio.AnalogOut` class:
@@ -280,6 +288,8 @@ on the A0 output or LED anode and the negative probe on the board ground, then
 measure the DC voltage.  As you set the value see how voltage read by the
 multimeter changes!
 
+.. image:: images/02_analog_io_multimeter.jpg
+
 Just like with an analog input the digital to analog converter converts its
 digital value (the number like 10000) to a voltage based on an internal analog
 reference voltage.  For the Metro M0 Express and Circuit Playground Express this
@@ -304,6 +314,13 @@ So a value of 50000 means the output voltage is about 2.5 volts.  Enough to turn
 on the LED but not very brightly.  Try setting the DAC value to other values
 above 50000 to see how an increase in the voltage increases the brightness of
 the LED!
+
+Remember you can create a Python function to simplify setting the output value
+for a desired output voltage:
+
+  >>> def dac_value(volts):
+  ...    return int(volts / 3.3 * 65535)
+  >>> led.value = dac_value(2.5)
 
 Pulse-width Modulation (Outputs)
 --------------------------------
@@ -408,6 +425,17 @@ signal turned on for 1/3 of the time and turned off for the remaining 2/3 of the
 time.  By manipulating the duty cycle you have similar control as if you were
 adjusting the voltage output by the pin!
 
+To further illustrate how PWM is different from true analog output, look at the
+image below which shows oscilloscope output of a PWM signal at different duty
+cycles (0%, 33%, 50%, 66%, and 100%).  Notice how as the duty cycle increases
+the amount of time the signal is at a high logic level (3.3V) gets longer.  At
+66% duty cycle the signal is high for twice as long as at 33% duty cycle
+(compare how long the tops of each wave are to check for yourself).  At the
+extremes of 0% and 100% you can also see the signal never changes and is always
+at a high or low level!
+
+.. image:: images/02_analog_io_pwm.png
+
 Back to controlling the LED, you can change the duty cycle by modifying the
 :py:attr:`pulseio.PWMOut.duty_cycle` attribute.  Try setting the duty cycle to a
 100% or fully on value with:
@@ -459,3 +487,6 @@ Try using a loop to go through all 0-100% duty cycle values and back:
 
 You should see the LED fade from off to fully on and back down to off
 repeatedly.  Press Ctrl-C to stop the loop and get back to the serial REPL.
+
+.. Author: Tony DiCola
+   Copyright: 2017
