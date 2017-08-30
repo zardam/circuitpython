@@ -488,5 +488,11 @@ Try using a loop to go through all 0-100% duty cycle values and back:
 You should see the LED fade from off to fully on and back down to off
 repeatedly.  Press Ctrl-C to stop the loop and get back to the serial REPL.
 
+And remember you can make a handy Python function to more easily set PWM duty cycle.  For example given a value from 0.0 to 1.0 (0 to 100%) it can compute the necessary duty cycle value for you:
+
+  >>> def duty_cycle_value(percent):
+  ...     return int(percent * 65535)
+  >>> led.duty_cycle = duty_cycle_value(0.5)  # Set 50% duty cycle.
+
 .. Author: Tony DiCola
    Copyright: 2017
