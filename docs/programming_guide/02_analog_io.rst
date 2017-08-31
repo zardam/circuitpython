@@ -427,9 +427,9 @@ adjusting the voltage output by the pin!
 
 To further illustrate how PWM is different from true analog output, look at the
 image below which shows oscilloscope output of a PWM signal at different duty
-cycles (0%, 33%, 50%, 66%, and 100%).  Notice how as the duty cycle increases
+cycles (0%, 25%, 50%, 75%, and 100%).  Notice how as the duty cycle increases
 the amount of time the signal is at a high logic level (3.3V) gets longer.  At
-66% duty cycle the signal is high for twice as long as at 33% duty cycle
+75% duty cycle the signal is high for twice as long as at 25% duty cycle
 (compare how long the tops of each wave are to check for yourself).  At the
 extremes of 0% and 100% you can also see the signal never changes and is always
 at a high or low level!
