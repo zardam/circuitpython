@@ -169,6 +169,7 @@ Now we're almost ready to read data from the sensor.  However just like with I2C
   bytearray(b'\x01\xa8\x1a\xf0')
 
 Before digging into the results let's break down what just happened:
+
 - The with statement uses a context manager to automatically lock the SPI bus.  You don't need to worry about locking and unlocking the bus by using the with statement, but again be sure to indent all the code that runs while the SPI bus is locked.
 - The :py:func:`busio.SPI.configure` function is called to configure the speed, phase, and polarity of the SPI bus.  It's important to always call configure before talking to your device as communication with other devices might have changed the speed, polarity, etc.  You'll need to look up the exact speed and other values from your device's datasheet.  For the MAX31855 we'll use a speed of 5mhz and a polarity and phase of 0 (sometimes called mode 0).
 - Next we toggle the CS line down to a low logic level.  Remember with SPI each device needs a chip select line to tell it when it's ready to send and receive data.
