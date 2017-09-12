@@ -13,6 +13,9 @@ very common serial protocols, I2C and SPI.
 I2C Devices
 -----------
 
+I2C Protocol
+^^^^^^^^^^^^
+
 The I2C, or `inter-integrated circuit <https://en.wikipedia.org/wiki/I²C>`_,
 protocol is one example of a serial protocol for devices to communicate with one
 another.  I2C is a serial protocol because it has a clock line and single data
@@ -22,7 +25,7 @@ serial protocols I2C has some interesting properties:
 - The I2C protocol only uses 2 wires to send and receive data.  One line is a clock, called SCL, which pulses high and low to drive the sending and receiving of bits.  The other line is the data line, called SDA, which contains the value of a sent or received bit during clock line transitions.
 - Multiple I2C devices can be connected to the same clock and data lines.  This means you can have many different sensors and devices all connected to the same couple pins from your development board.  The I2C protocol uses a 7-bit address assigned to each device as a way for the development board to talk to a specific device.  As a result of using 7-bit addresses the I2C protocol is limited to 127 unique devices connected to one bus (or pair of data and clock lines).
 - The speed of the I2C bus is fixed, typically to 100khz, 400khz, or 1mhz.  This means I2C is a good protocol for talking to devices that don't send a lot of data or need very fast responses.  A TFT display which receives hundreds of kilobytes and even megabytes of image data wouldn't make sense as an I2C device because sending so much data over a 100khz bus would be quite slow.  However a small sensor like a temperature or light sensor that sends a small 16 or 32-bit value typically doesn't need a fast bus.
-- The I2C clock and data lines need pull-up resistors to prevent from floating to random values.  Since many different devices can share these lines the I2C protocol requires that each device 'give up' or stop driving the lines when not in use.  If no device is driving the lines then the pull-up resistors ensure they go up to a high logic level instead of floating at random values.  Most I2C device boards (in particular the boards Adafruit creates) have these pull-up resistors built-in, but if you're talking to a chip or building a board yourself you might need to add ~10 kilo-ohm resistors connected from both data and clock lines up to high logic level.
+- The I2C clock and data lines need pull-up resistors to prevent from floating to random values.  Since many different devices can share these lines the I2C protocol requires that each device 'give up' or stop driving the lines when not in use.  If no device is driving the lines then the pull-up resistors ensure they go up to a high logic level instead of floating at random values.  Most I2C device boards (in particular the boards Adafruit creates) have these pull-up resistors built-in, but if you're talking to a chip or building a board yourself you might need to add ~2.2-10 kilo-ohm resistors connected from both data and clock lines up to high logic level.
 - The I2C protocol includes a simple guarantee that data has been transferred between devices.  When one I2C device receives data from another device it uses a special acknowledgement bit to tell the sending device that data has been received.  There's no error correction, parity checks, etc.--just a simple yes/no that data has been successfully sent and received.
 - Typically one device on an I2C bus is the 'master' which controls the clock line and sends requests to other connected devices.  In most cases your development board is the master device that drives the I2C bus clock.  Sensors and other I2C devices connected to the bus listen for requests from the master and respond appropriately.  This guide covers this most common scenario where your development board is the I2C master and is talking to connected devices.
 - Many I2C devices expose data through a simple register table.  This means to query data from the device you need to know both the address of the device and the address of the register you wish to query.  Check your device's datasheet for the exact device and register address values.  Typically registers are 8-bit values (0 to 255) but devices are free to use larger or smaller sizes--always check your device's datasheet to be sure how it exposes data!
@@ -32,6 +35,9 @@ devices that don't need to send or receive data quickly.  Many different sensors
 can all be connected to the same I2C clock and data lines.  By giving each
 sensor a unique 7-bit address your development board and code can query each one
 for their current value.
+
+MCP9808 I2C Temperature Sensor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To demonstrate interacting with an I2C device this guide will show you how to
 query the temperature from a MCP9808 high precision temperature sensor.  This
@@ -56,7 +62,7 @@ Remember the I2C protocol requires pull-up resistors to be on the clock and data
 lines.  If you're using an Adafruit breakout board like the MCP9808 sensor
 linked above then these pull-ups are built-in and nothing else is necessary.
 However if you're wiring a chip directly to your board or using a differnet
-breakout you might need to add pull-up resistors.  Typically these are 4.7k -
+breakout you might need to add pull-up resistors.  Typically these are 2.2k -
 10k ohm resistors that connect both clock and data up to high logic / 3.3V.
 
 Once the device is wired up you're ready to start interacting with it from
@@ -208,6 +214,91 @@ transactions of almost unlimited complexity.  Most devices will use the basic
 write register, read bytes flow you saw here, but be sure to check your device's
 datasheet in case it has different I2C protocol requirements.
 
+I2CDevice Library
+^^^^^^^^^^^^^^^^^
+
+You saw above how to interact with an I2C device using the API built-in to
+CircuitPython.  Remember using the built-in API requires careful management of
+the lock and unlock functions to access the I2C bus.  If you're writing code to
+talk to an I2C device you might find using the `CircuitPython bus device library
+<https://github.com/adafruit/Adafruit_CircuitPython_BusDevice>`_ a bit easier to
+manage as it controls locking and unlocking automatically (using Python's
+context manager with statement).
+
+To use the bus device library you'll first need to install the library on your
+board.  If you're using a board with external flash, like the Circuit Playground
+Express or Feather/Metro M0 Express, you can install the CircuitPython bundle
+which includes the bus device and other useful libraries.  You can install this
+bundle by following the `instructions on the release page
+<https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases>`_.  Just
+unzip the bundle release .zip and drag the lib folder onto your board's
+CIRCUITPY drive.
+
+For boards without external flash, like the Trinket M0 and Gemma M0, you'll need
+to manually install the bus device library.  Like the `Trinket M0 guide mentions
+<https://learn.adafruit.com/adafruit-trinket-m0-circuitpython-arduino/installing-libraries>`_,
+to install libraries on these boards you have to pick and choose which libraries
+to copy into the lib folder.  This is because these smaller boards don't have
+enough storage space to copy over the entire bundle.  Make sure to copy over the
+**adafruit_bus_device** folder from inside lib to the lib folder of your board's
+CIRCUITPY drive.
+
+Once you have the bus device library installed you can use the `I2CDevice class
+<http://circuitpython.readthedocs.io/projects/bus_device/en/latest/adafruit_bus_device/#adafruit_bus_device.i2c_device.I2CDevice>`_
+to simplify access to a device on the I2C device bus.  First setup the I2C bus
+exactly as you did before:
+
+  >>> import board
+  >>> import busio
+  >>> i2c = busio.I2C(board.SCL, board.SDA)
+
+Now import the bus device module and create an instance of the I2CDevice class.
+Notice the I2CDevice class needs to be told both the I2C bus object, and the
+address of the I2C device to talk to (0x18 for the MCP9808 sensor here):
+
+  >>> from adafruit_bus_device.i2c_device import I2CDevice
+  >>> device = I2CDevice(i2c, 0x18)
+
+At this point you can use similar functions to read and write data on the I2C
+bus to interact with the I2CDevice.  The important difference here is that the
+read and write functions on the I2CDevice object will remember and automatically
+send the right device address.  In addition you can use Python's with statement
+as a context manager to automatically lock and unlock the I2C bus.
+
+Here's how to read the temperature register using the I2CDevice:
+
+  >>> with device:
+  ...     device.write(bytes([0x05]), stop=False)
+  ...     result = bytearray(2)
+  ...     device.read_into(result)
+  ...
+  >>> result
+  bytearray(b'\xc1s')
+  >>> temp_c(result)
+  23.1875
+
+Notice you no longer need to specify the address of the device (0x18) when
+reading and writing.  The with statement is also automatically locking and
+unlocking the I2C bus so you don't need to manage the locking yourself either.
+
+The only limitation of the I2CDevice class is that it needs to talk to a single
+device and can't scan the entire bus or interact with multiple devices (instead
+create multiple I2CDevice instances!).  If you're writing code to interact with
+an I2C device it's highly recommended to use the I2CDevice class!
+
+Also for interacting with most sensors and devices you typically don't need to
+write these low-level direct I2C bus manipulation requests (with either the
+built-in APIs or I2CDevice class).  Instead look for a higher level library to
+interact with the device, like the `CircuitPython MCP9808 library
+<https://github.com/adafruit/Adafruit_CircuitPython_MCP9808>`_. Using a library
+saves you the work of writing this low-level I2C code and instead you can
+interact with simple temperature and other device properties. However it is
+handy to know how to write low-level I2C transactions in case you're dealing
+with devices that don't yet have a driver available!
+
+Scan All Registers
+^^^^^^^^^^^^^^^^^^
+
 An interesting property of most I2C devices is that they expose data with simple
 registers.  Like you saw above with the MCP9808 sensor the register 0x05 held
 the temperature as 2 bytes of data.  It's sometimes handy to scan all of the
@@ -266,17 +357,11 @@ For example with the MCP9808 you might see output like::
   Address 0xb: 0x25 0x88
   Address 0xc: 0x0 0x1
 
-Also for interacting with most sensors and devices you typically don't need to
-write these low-level direct I2C bus manipulation requests.  Instead look for a
-higher level library to interact with the device, like the `CircuitPython
-MCP9808 library <https://github.com/adafruit/Adafruit_CircuitPython_MCP9808>`_.
-Using a library saves you the work of writing this low-level I2C code and
-instead you can interact with simple temperature and other device properties.
-However it is handy to know how to write low-level I2C transactions in case
-you're dealing with devices that don't yet have a driver available!
-
 SPI Devices
 -----------
+
+SPI Protocol
+^^^^^^^^^^^^
 
 The SPI protocol, or `serial peripheral interface
 <https://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus>`_, is another
@@ -296,6 +381,9 @@ Compared to I2C the SPI protocol has some interesting properties:
 - Like I2C multiple devices can share the same SPI bus, however a big difference is that each device typically requires its own unique CS line.  Remember the CS/chip select line is what tells a chip that it should listen for SPI traffic.  As a result for each SPI device you connect to your board it can share the clock, MOSI, MISO lines but must have its own CS line (typically connected to any free digital I/O pin).
 - SPI devices have different requirements for speed (sometimes called baudrate), polarity, and phase.  The `SPI page on Wikipedia <https://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus>`_ has a good description of what polarity and phase mean--they control how the data is sent and received over the MISO and MOSI lines.  Different polarity values control if a digital high or low logic level means a bit is a one or zero.  Similarly different phase values control when data is read and written by devices--either with the rising or falling edge of the clock line.  The important thing to know about phase and polarity is that each device has its own requirement for setting them so be sure to check your device's datasheet.  Many devices are 'mode 0' which means a polarity and phase of 0 but watch out because some devices use different modes.
 - Like with I2C the basic operations are reading and writing bits and bytes of data over the data lines.  However unlike SPI there is no guarantee or check that a connected device received or sent data successfully.  Sometimes chips have extra lines to watch for an acknowledgment, but sometimes they don't and the SPI requests are 'fire and forget' with no guarantee they were received.
+
+MAX31855 SPI Thermocouple Temperature Sensor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To demonstrate interacting with a SPI device this guide will show you how to
 query the temperature from a MAX31855 thermocouple temperature sensor.  This
@@ -441,14 +529,95 @@ example of a complete sensor read with the try-finally syntax:
   bytearray(b'\x01\xa8\x1a\xf0')
 
 That's all there is to the basics of reading and writing data with the SPI
-protocol!  Just like with I2C you typically don't need to go straight to these
-low-level SPI protocol requests, instead look for a library to interface with
-your hardware. In this case the `CircuitPython MAX31855 library
-<https://github.com/adafruit/Adafruit_CircuitPython_MAX31855>`_ is exactly what
-you want to use to talk to this thermocouple sensor.  Using a library simplifies
-access to the sensor data and saves you from writing all the complex SPI
-transaction code.  However if your device doesn't have a library you might need
-to interface with it directly using code like the above!
+protocol and the built-in SPI APIs of CircuitPython.  However just like with I2C
+there's a handy SPIDevice library that can simplify talking to SPI devices.
+
+SPIDevice Library
+^^^^^^^^^^^^^^^^^
+
+You saw above how to interact with a SPI device using the API built-in to
+CircuitPython.  Remember using the built-in API requires careful management of
+the lock and unlock functions to access the SPI bus, and explicit manipulation
+of the chip select line for a device.  If you're writing code to talk to a SPI
+device you might find using the `CircuitPython bus device library
+<https://github.com/adafruit/Adafruit_CircuitPython_BusDevice>`_ a bit easier to
+manage as it controls locking & unlocking, and the chip select line
+automatically (using Python's context manager with statement).
+
+To use the bus device library you'll first need to install the library on your
+board.  If you're using a board with external flash, like the Circuit Playground
+Express or Feather/Metro M0 Express, you can install the CircuitPython bundle
+which includes the bus device and other useful libraries.  You can install this
+bundle by following the `instructions on the release page
+<https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases>`_.  Just
+unzip the bundle release .zip and drag the lib folder onto your board's
+CIRCUITPY drive.
+
+For boards without external flash, like the Trinket M0 and Gemma M0, you'll need
+to manually install the bus device library.  Like the `Trinket M0 guide mentions
+<https://learn.adafruit.com/adafruit-trinket-m0-circuitpython-arduino/installing-libraries>`_,
+to install libraries on these boards you have to pick and choose which libraries
+to copy into the lib folder.  This is because these smaller boards don't have
+enough storage space to copy over the entire bundle.  Make sure to copy over the
+**adafruit_bus_device** folder from inside lib to the lib folder of your board's
+CIRCUITPY drive.
+
+Once you have the bus device library installed you can use the `SPIDevice class
+<http://circuitpython.readthedocs.io/projects/bus_device/en/latest/adafruit_bus_device/#adafruit_bus_device.spi_device.SPIDevice>`_
+to simplify access to a device on the SPI bus.  First setup the SPI bus and CS
+line exactly as you did before:
+
+  >>> import board
+  >>> import busio
+  >>> import digitalio
+  >>> spi = busio.SPI(board.SCK, MISO=board.MISO)
+  >>> cs = digitalio.DigitalInOut(board.D2)
+
+Now import the bus device module and create an instance of the SPIDevice class.
+Notice the SPIDevice class needs to be told the SPI bus, chip select line,
+baudrate, polarity, and phase of the SPI connection.  These details will be
+remembered by the SPIDevice class so it can automatically lock and configure the
+bus appropriately (again using Python's with statement and a context manager):
+
+  >>> from adafruit_bus_device.spi_device import SPIDevice
+  >>> device = SPIDevice(spi, cs, baudrate=5000000, polarity=0, phase=0)
+
+At this point you're ready to interact with the SPI device instance using the
+same read and write functions as before.  However this time you'll put your code
+in a with statement context manager and it will automatically lock the bus,
+assert the CS line, configure the SPI bus, run your commands, deassert the CS
+line, and unlock the bus when done:
+
+  >>> with device:
+  ...     result = bytearray(4)
+  ...     spi.readinto(result)
+  ...
+  >>> result
+  bytearray(b'\x01\xa8\x1a\xf0')
+  >>> temp_c(result)
+  26.5
+
+Notice you didn't need to call configure or even change the CS line from high to
+low and back.  The SPIDevice class takes care of all these details for you
+automatically!  You can even call the write function just like on the SPI bus
+directly and data will be written out the MOSI line.
+
+One important thing to note is that the CS line is asserted for the *entire*
+with statement block, so if you need to make two different transactions be sure
+to put them in their own with statement blocks.  Another thing to note with the
+SPI device class is that it currently only supports devices with a chip select
+(it is not optional) and whose chip select is asserted with a low logic signal.
+Devices asserted with a high logic level are rare and uncommon so the SPI device
+class should cover most needs.
+
+Just like with I2C you typically don't need to go straight to these low-level
+SPI protocol requests (using built-in APIs or the SPIDevice class), instead look
+for a library to interface with your hardware. In this case the `CircuitPython
+MAX31855 library <https://github.com/adafruit/Adafruit_CircuitPython_MAX31855>`_
+is exactly what you want to use to talk to this thermocouple sensor.  Using a
+library simplifies access to the sensor data and saves you from writing all the
+complex SPI transaction code.  However if your device doesn't have a library you
+might need to interface with it directly using code like the above!
 
 Software SPI & I2C
 ^^^^^^^^^^^^^^^^^^
@@ -527,11 +696,13 @@ SPI bus!
 
   >>> spi.unlock()
 
-You can do the exact same software 'bit-bang' trick with the I2C protocol too.
-Use the :py:class:`bitbangio.I2C` class from the :py:mod:`bitbangio` module in
-place of the :py:class:`busio.I2C` class.  The interface between the two classes
-is the same so you just change how you import and create the I2C interface, for
-example:
+Don't forget you can even use the SPIDevice library with the bit-bang I2C bus!
+
+You can do the exact same software 'bit-bang' trick with the I2C protocol too
+(even using the I2CDevice class). Use the :py:class:`bitbangio.I2C` class from
+the :py:mod:`bitbangio` module in place of the :py:class:`busio.I2C` class.  The
+interface between the two classes is the same so you just change how you import
+and create the I2C interface, for example:
 
   >>> import board
   >>> import bitbangio
