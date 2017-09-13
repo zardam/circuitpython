@@ -230,9 +230,11 @@ board.  If you're using a board with external flash, like the Circuit Playground
 Express or Feather/Metro M0 Express, you can install the CircuitPython bundle
 which includes the bus device and other useful libraries.  You can install this
 bundle by following the `instructions on the release page
-<https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases>`_.  Just
-unzip the bundle release .zip and drag the lib folder onto your board's
-CIRCUITPY drive.
+<https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases>`_ or from
+the your board's guide like the `Feather M0 express bundle install
+<https://learn.adafruit.com/adafruit-feather-m0-express-designed-for-circuit-python-circuitpython/installing-libraries>`_
+shows.  Just unzip the bundle release .zip and drag the lib folder onto your
+board's CIRCUITPY drive.
 
 For boards without external flash, like the Trinket M0 and Gemma M0, you'll need
 to manually install the bus device library.  Like the `Trinket M0 guide mentions
@@ -549,9 +551,11 @@ board.  If you're using a board with external flash, like the Circuit Playground
 Express or Feather/Metro M0 Express, you can install the CircuitPython bundle
 which includes the bus device and other useful libraries.  You can install this
 bundle by following the `instructions on the release page
-<https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases>`_.  Just
-unzip the bundle release .zip and drag the lib folder onto your board's
-CIRCUITPY drive.
+<https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases>`_ or from
+the your board's guide like the `Feather M0 express bundle install
+<https://learn.adafruit.com/adafruit-feather-m0-express-designed-for-circuit-python-circuitpython/installing-libraries>`_
+shows..  Just unzip the bundle release .zip and drag the lib folder onto your
+board's CIRCUITPY drive.
 
 For boards without external flash, like the Trinket M0 and Gemma M0, you'll need
 to manually install the bus device library.  Like the `Trinket M0 guide mentions
