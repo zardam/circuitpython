@@ -1,8 +1,16 @@
-LD_FILE = boards/samd21x18-bootloader.ld
-USB_VID = 0x2341
-USB_PID = 0x824D
+#LD_FILE = boards/samd21x18-bootloader.ld
+LD_FILE = boards/samd21x18-bootloader-external-flash.ld
+
+DEBUG=1
+
+USB_VID = 0x0451
+USB_PID = 0xE020
 USB_PRODUCT = "Arduino Zero"
 USB_MANUFACTURER = "Arduino"
+
+# SPI_FLASH_FILESYSTEM = 1
+# EXTERNAL_FLASH_DEVICE_COUNT = 1
+# EXTERNAL_FLASH_DEVICES = "W25Q80DL"
 
 INTERNAL_FLASH_FILESYSTEM = 1
 LONGINT_IMPL = NONE

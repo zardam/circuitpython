@@ -45,7 +45,7 @@ ifdef EXTERNAL_FLASH_DEVICES
 		SRC_SUPERVISOR += supervisor/qspi_flash.c supervisor/shared/external_flash/qspi_flash.c
 	endif
 else
-	SRC_SUPERVISOR += supervisor/internal_flash.c
+	SRC_SUPERVISOR += supervisor/internal_flash.c supervisor/shared/external_flash/spi_flash.c
 endif
 
 ifeq ($(USB),FALSE)

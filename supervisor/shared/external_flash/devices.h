@@ -301,16 +301,16 @@ typedef struct {
 // Settings for the Winbond W25Q80DL 1MiB SPI flash.
 // Datasheet: https://www.winbond.com/resource-files/w25q80dv%20dl_revh_10022015.pdf
 #define W25Q80DL {\
-    .total_size = (1 << 20), /* 1 MiB */ \
+    .total_size = (1 << 18), /* 1 MiB */ \
     .start_up_time_us = 5000, \
     .manufacturer_id = 0xef, \
-    .memory_type = 0x60, \
-    .capacity = 0x14, \
-    .max_clock_speed_mhz = 104, \
+    .memory_type = 0x40, \
+    .capacity = 0x13, \
+    .max_clock_speed_mhz = 8, \
     .quad_enable_bit_mask = 0x02, \
     .has_sector_protection = false, \
-    .supports_fast_read = true, \
-    .supports_qspi = true, \
+    .supports_fast_read = false, \
+    .supports_qspi = false, \
     .supports_qspi_writes = false, \
     .write_status_register_split = false, \
     .single_status_byte = false, \

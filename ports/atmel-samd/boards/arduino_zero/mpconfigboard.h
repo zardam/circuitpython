@@ -6,6 +6,11 @@
 #define MICROPY_HW_LED_TX   &pin_PA27
 #define MICROPY_HW_LED_RX   &pin_PB03
 
+#define SPI_FLASH_MOSI_PIN  (&pin_PA08)
+#define SPI_FLASH_MISO_PIN  (&pin_PA14)
+#define SPI_FLASH_SCK_PIN   (&pin_PA09)
+#define SPI_FLASH_CS_PIN    (&pin_PA15)
+
 #define MICROPY_PORT_A        (PORT_PA27)
 #define MICROPY_PORT_B        (PORT_PB03)
 #define MICROPY_PORT_C        (0)

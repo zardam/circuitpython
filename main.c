@@ -58,6 +58,9 @@
 #include "supervisor/shared/stack.h"
 #include "supervisor/serial.h"
 
+#include "supervisor/spi_flash_api.h"
+#include "supervisor/shared/external_flash/devices.h"
+
 #if CIRCUITPY_NETWORK
 #include "shared-module/network/__init__.h"
 #endif
@@ -424,6 +427,10 @@ int __attribute__((used)) main(void) {
 
     // Start serial and HID after giving boot.py a chance to tweak behavior.
     serial_init();
+
+    const external_flash_device flash[1] = { W25Q80DL };
+    spi_flash_init();
+    spi_flash_init_device(flash);
 
     // Boot script is finished, so now go into REPL/main mode.
     int exit_code = PYEXEC_FORCED_EXIT;
