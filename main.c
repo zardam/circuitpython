@@ -57,6 +57,7 @@
 #include "supervisor/shared/status_leds.h"
 #include "supervisor/shared/stack.h"
 #include "supervisor/serial.h"
+#include "supervisor/usb.h"
 
 #include "supervisor/spi_flash_api.h"
 #include "supervisor/shared/external_flash/devices.h"
@@ -388,7 +389,8 @@ int run_repl(void) {
     autoreload_resume();
     return exit_code;
 }
-
+#include "shared-bindings/busio/UART.h"
+#include "shared-bindings/microcontroller/Pin.h"
 int __attribute__((used)) main(void) {
     memory_init();
 
@@ -433,22 +435,34 @@ int __attribute__((used)) main(void) {
     spi_flash_init_device(flash);
 
     // Boot script is finished, so now go into REPL/main mode.
-    int exit_code = PYEXEC_FORCED_EXIT;
-    bool skip_repl = true;
-    bool first_run = true;
+    supervisor_allocation* heap = allocate_remaining_memory();
+    start_mp(heap);
+    busio_uart_obj_t *self = m_new_ll_obj(busio_uart_obj_t);
+    self->base.type = &busio_uart_type;
+
+    assert_pin_free(DEFAULT_UART_BUS_RX);
+    assert_pin_free(DEFAULT_UART_BUS_TX);
+
+    const mcu_pin_obj_t* rx = MP_OBJ_TO_PTR(DEFAULT_UART_BUS_RX);
+    const mcu_pin_obj_t* tx = MP_OBJ_TO_PTR(DEFAULT_UART_BUS_TX);
+
+    common_hal_busio_uart_construct(self, tx, rx, 115200, 8, PARITY_NONE, 1, 1000, 64);
+    int errcode;
+    uint8_t c;
     for (;;) {
-        if (!skip_repl) {
-            exit_code = run_repl();
-        }
-        if (exit_code == PYEXEC_FORCED_EXIT) {
-            if (!first_run) {
-                serial_write_compressed(translate("soft reboot\n"));
-            }
-            first_run = false;
-            skip_repl = run_code_py(safe_mode);
-        } else if (exit_code != 0) {
-            break;
-        }
+      if(serial_connected() && serial_bytes_available()) {
+        c = serial_read();
+        common_hal_busio_uart_write(self,&c,1,&errcode);
+      }
+      usb_background();
+
+      struct usart_async_descriptor * const usart_desc_p = (struct usart_async_descriptor * const) &self->usart_desc;
+      struct io_descriptor *io;
+      usart_async_get_io_descriptor(usart_desc_p, &io);
+      if(io_read(io, &c, 1) > 0) {
+        serial_write_substring((const char*)&c,1);
+      }
+      usb_background();
     }
     mp_deinit();
     return 0;
